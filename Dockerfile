@@ -9,7 +9,9 @@ RUN apt-get update && apt-get install -y \
 # Create app dir and add script
 WORKDIR /app
 COPY wisecow.sh /app/wisecow.sh
-RUN chmod +x /app/wisecow.sh
+
+# Fix possible Windows CRLF issue
+RUN sed -i 's/\r$//' /app/wisecow.sh && chmod +x /app/wisecow.sh
 
 # Expose port used by wisecow
 EXPOSE 4499
@@ -20,4 +22,3 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s \
 
 # Run the app
 CMD ["/app/wisecow.sh"]
-
