@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: wisecow
-          image: ghcr.io/devrepo1993/wisecow:latest # Use a specific version tag in production
+          image: docker.io/devrepo1993/wisecow:latest # Use a specific version tag in production
           imagePullPolicy: IfNotPresent 
           ports:
             - containerPort: 4499
