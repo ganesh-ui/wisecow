@@ -2,7 +2,9 @@
 FROM alpine:3.18
 
 # Install required packages
-RUN apk add --no-cache bash curl socat openbsd-extras fortune-mod cowsay
+RUN apt-get update && apt-get install -y \
+    bash curl socat cowsay fortunes \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create app dir and add script
 WORKDIR /app
