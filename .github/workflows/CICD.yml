@@ -1,27 +1,21 @@
-name: CI/CD Build & (optional) Deploy
+name: CI/CD Build & Deploy (Minikube Runner)
 
 on:
   push:
     branches: [ main ]
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
-  build-and-push:
+  build-deploy:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
+      - name: Docker Hub login
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -34,35 +28,30 @@ jobs:
           push: true
           tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/wisecow:latest
 
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check if KUBECONFIG_DATA is set
+      - name: Install Minikube
         run: |
-          if [ -z "${{ secrets.KUBECONFIG_DATA }}" ]; then
-            echo "⚠️  KUBECONFIG_DATA not set, skipping deploy."
-            exit 0
-          fi
+          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+          minikube version
 
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Start Minikube
+        run: |
+          minikube start --driver=docker
+          minikube status
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'v1.30.0'
 
-      - name: Install yq
-        run: sudo apt-get update && sudo apt-get install -y yq
-
       - name: Setup KUBECONFIG
         run: |
           mkdir -p $HOME/.kube
-          cat <<EOF | base64 --decode > $HOME/.kube/config
-          ${{ secrets.KUBECONFIG_DATA }}
-          EOF
+          minikube kubeconfig > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
+
+      - name: Install yq
+        run: sudo apt-get update && sudo apt-get install -y yq
 
       - name: Update k8s manifests image
         run: |
@@ -74,3 +63,6 @@ jobs:
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/ingress.yaml
+
+      - name: Get Pods
+        run: kubectl get pods -n default
