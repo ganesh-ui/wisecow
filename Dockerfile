@@ -21,7 +21,7 @@ FROM debian:stable-slim
 
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y \
-    bash curl socat cowsay fortunes netcat-traditional \
+    bash curl socat cowsay fortune-mod netcat-traditional \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
