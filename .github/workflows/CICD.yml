@@ -58,6 +58,7 @@ jobs:
 
       - name: Setup KUBECONFIG
         run: |
+          mkdir -p $HOME/.kube
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
