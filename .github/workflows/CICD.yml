@@ -36,8 +36,8 @@ jobs:
 
   deploy:
     needs: build-and-push
-  runs-on: ubuntu-latest
-  if: ${{ secrets.KUBECONFIG_DATA }}
+    runs-on: ubuntu-latest
+    if: ${{ secrets.KUBECONFIG_DATA }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,6 +46,9 @@ jobs:
         uses: azure/setup-kubectl@v3
         with:
           version: 'v1.30.0'
+
+      - name: Install yq
+        run: sudo apt-get update && sudo apt-get install -y yq
 
       - name: Setup KUBECONFIG
         run: |
