@@ -59,7 +59,9 @@ jobs:
       - name: Setup KUBECONFIG
         run: |
           mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
+          cat <<EOF | base64 --decode > $HOME/.kube/config
+          ${{ secrets.KUBECONFIG_DATA }}
+          EOF
           chmod 600 $HOME/.kube/config
 
       - name: Update k8s manifests image
