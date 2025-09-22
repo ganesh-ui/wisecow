@@ -62,4 +62,4 @@ jobs:
           kubectl apply -f k8s/ingress.yaml
 
       - name: Get Pods
-        run: kubectl get pods -n default
+        run: kubectl get pods -n wisecow
