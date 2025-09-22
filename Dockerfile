@@ -1,7 +1,7 @@
 # ----------------------
 # Stage 1: Builder
 # ----------------------
-FROM debian:stable-slim AS builder
+FROM ubuntu:22.04 AS builder
 
 # Install required packages
 RUN apt-get update && apt-get install -y \
@@ -17,11 +17,11 @@ RUN dos2unix /app/wisecow.sh && chmod +x /app/wisecow.sh
 # ----------------------
 # Stage 2: Runtime
 # ----------------------
-FROM debian:stable-slim
+FROM ubuntu:22.04
 
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y \
-    bash curl socat cowsay fortune-mod netcat-traditional \
+    bash curl socat cowsay fortune-mod netcat \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
