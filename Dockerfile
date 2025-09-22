@@ -3,13 +3,13 @@
 # ----------------------
 FROM ubuntu:22.04 AS builder
 
-# Install required packages
+# Install dos2unix to fix line endings
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
     add-apt-repository universe && \
     apt-get update && \
-    apt-get install -y bash curl socat cowsay fortune-mod netcat && \
-    rm -rf /var/lib/apt/lists/* 
+    apt-get install -y dos2unix && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY wisecow.sh /app/wisecow.sh
@@ -22,16 +22,19 @@ RUN dos2unix /app/wisecow.sh && chmod +x /app/wisecow.sh
 # ----------------------
 FROM ubuntu:22.04
 
-# Install runtime dependencies only
-RUN apt-get update && apt-get install -y \
-    bash curl socat cowsay fortune-mod netcat \
-    && rm -rf /var/lib/apt/lists/*
+# Enable universe and install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository universe && \
+    apt-get update && \
+    apt-get install -y bash curl socat cowsay fortune-mod netcat && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 # Copy the fixed script from builder stage
 COPY --from=builder /app/wisecow.sh /app/wisecow.sh
 
-# Expose the port
+# Expose the app port
 EXPOSE 4499
 
 # Health check
