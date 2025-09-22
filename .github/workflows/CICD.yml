@@ -34,28 +34,24 @@ jobs:
           sudo install minikube-linux-amd64 /usr/local/bin/minikube
           minikube version
 
-      - name: Start Minikube
+      - name: Setup Minikube kubeconfig
         run: |
+          mkdir -p $HOME/.kube
           minikube start --driver=docker
-          minikube status
+          minikube update-context
+          chmod 600 $HOME/.kube/config
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'v1.30.0'
 
-      - name: Setup KUBECONFIG
-        run: |
-          mkdir -p $HOME/.kube
-          minikube kubeconfig > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
-
       - name: Install yq
         run: sudo apt-get update && sudo apt-get install -y yq
 
       - name: Update k8s manifests image
         run: |
-          yq -i '.spec.template.spec.containers[0].image = "docker.io/'"${{ secrets.DOCKERHUB_USERNAME }}"'/wisecow:latest"' k8s/deployment.yaml
+          yq -i '.spec.template.spec.containers[0].image = "docker.io/'"${{ secrets.DOCKERHUB_USERNAME }}"'/wisecow:latest"' k8/deployment.yaml
 
       - name: Apply manifests
         run: |
