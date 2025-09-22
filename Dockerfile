@@ -4,9 +4,12 @@
 FROM ubuntu:22.04 AS builder
 
 # Install required packages
-RUN apt-get update && apt-get install -y \
-    dos2unix \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository universe && \
+    apt-get update && \
+    apt-get install -y bash curl socat cowsay fortune-mod netcat && \
+    rm -rf /var/lib/apt/lists/* 
 
 WORKDIR /app
 COPY wisecow.sh /app/wisecow.sh
