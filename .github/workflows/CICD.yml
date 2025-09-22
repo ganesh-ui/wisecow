@@ -37,24 +37,26 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: ${{ secrets.KUBECONFIG_DATA }}
     steps:
+      - name: Check if KUBECONFIG_DATA is set
+        run: |
+          if [ -z "${{ secrets.KUBECONFIG_DATA }}" ]; then
+            echo "⚠️  KUBECONFIG_DATA not set, skipping deploy."
+            exit 0
+          fi
+
       - name: Checkout
-        if: ${{ secrets.KUBECONFIG_DATA != '' }}
         uses: actions/checkout@v4
 
       - name: Install kubectl
-        if: ${{ secrets.KUBECONFIG_DATA != '' }}
         uses: azure/setup-kubectl@v3
         with:
           version: 'v1.30.0'
 
       - name: Install yq
-        if: ${{ secrets.KUBECONFIG_DATA != '' }}
         run: sudo apt-get update && sudo apt-get install -y yq
 
       - name: Setup KUBECONFIG
-        if: ${{ secrets.KUBECONFIG_DATA != '' }}
         run: |
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
